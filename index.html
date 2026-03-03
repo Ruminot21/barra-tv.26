@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CuraTV Overlay Responsive</title>
+<meta name="viewport" content="width=1920, initial-scale=1.0">
+<title>CuraTV Overlay PRO</title>
 
 <style>
 body{
@@ -13,20 +13,12 @@ font-family:Arial, Helvetica, sans-serif;
 background:transparent;
 }
 
-/* LOGO RESPONSIVE */
-.logo{
-position:absolute;
-top:2vh;
-right:2vw;
-height:clamp(90px, 10vh, 140px);
-}
-
 /* NOMBRE CANAL */
 .channel-name{
 position:absolute;
-bottom:10vh;
-left:2vw;
-font-size:clamp(20px, 3vw, 50px);
+bottom:12vh;
+left:3vw;
+font-size:clamp(30px, 3vw, 55px);
 font-weight:bold;
 background:linear-gradient(90deg,#00f0ff,#a100ff);
 -webkit-background-clip:text;
@@ -36,38 +28,49 @@ color:transparent;
 /* RELOJ + TEMP */
 .clock{
 position:absolute;
-bottom:10vh;
-right:2vw;
-font-size:clamp(16px, 2vw, 32px);
+bottom:12vh;
+right:3vw;
+font-size:clamp(22px, 2vw, 36px);
 color:#00f0ff;
 font-weight:bold;
 display:flex;
 align-items:center;
-gap:1vw;
+gap:15px;
+text-shadow:0 0 10px #00f0ff;
+animation:glow 2s infinite alternate;
 }
 
-/* ===== CINTA MUSICAL RESPONSIVE ===== */
+@keyframes glow{
+from{ text-shadow:0 0 5px #00f0ff; }
+to{ text-shadow:0 0 20px #00f0ff; }
+}
 
+/* ICONO CLIMA */
+.weather-icon{
+font-size:28px;
+}
+
+/* CINTA MUSICAL */
 .ticker-container{
 position:absolute;
 bottom:0;
 width:100%;
-height:clamp(40px, 6vh, 80px);
+height:70px;
 background:linear-gradient(90deg,#1a0033,#002b5c,#1a0033);
 display:flex;
 align-items:center;
 overflow:hidden;
-border-top:0.4vh solid #00f0ff;
-box-shadow:0 0 2vh #00f0ff;
+border-top:4px solid #00f0ff;
+box-shadow:0 0 20px #00f0ff;
 }
 
 .ticker{
 white-space:nowrap;
 color:white;
-font-size:clamp(14px, 1.8vw, 28px);
+font-size:24px;
 font-weight:bold;
-letter-spacing:0.2vw;
-animation:scroll 18s linear infinite;
+letter-spacing:2px;
+animation:scroll 25s linear infinite;
 position:relative;
 }
 
@@ -76,7 +79,6 @@ position:relative;
 100% { transform: translateX(-100%); }
 }
 
-/* EFECTO BRILLO */
 .ticker::after{
 content:"";
 position:absolute;
@@ -85,7 +87,7 @@ left:-100%;
 width:40%;
 height:100%;
 background:linear-gradient(120deg,transparent,rgba(255,255,255,0.6),transparent);
-animation:shine 4s infinite;
+animation:shine 5s infinite;
 }
 
 @keyframes shine{
@@ -97,31 +99,31 @@ animation:shine 4s infinite;
 
 <body>
 
-<img src="https://i.postimg.cc/VNhjTb4d/3dgifmaker92299.gif" class="logo">
-
 <div class="channel-name">CuraTV</div>
 
 <div class="clock">
   <span id="time"></span>
+  <span class="weather-icon" id="icon">☀️</span>
   <span id="temp"> --°C</span>
 </div>
 
 <div class="ticker-container">
   <div class="ticker">
-    🎵 La Pica de Rosita Con los desayunos desde las 5:30 de la mañana hasta las 12:30 de la tarde y después colaciones hasta las 14:30 
+    🎵 La Pica de Rosita • Desayunos 5:30 AM a 12:30 PM • Colaciones hasta las 14:30 • ¡Te esperamos!
   </div>
 </div>
 
 <script>
-/* RELOJ */
+/* RELOJ 24H */
 function updateClock(){
   const now = new Date();
-  document.getElementById("time").innerText = now.toLocaleTimeString();
+  document.getElementById("time").innerText =
+    now.toLocaleTimeString('es-CL', { hour12:false });
 }
 setInterval(updateClock,1000);
 updateClock();
 
-/* TEMPERATURA */
+/* CLIMA */
 const apiKey = "08956bbc1467eae311c7eea17b034270";
 const city = "Curacavi,CL";
 
@@ -130,9 +132,20 @@ async function updateWeather(){
     const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=es&appid=${apiKey}`);
     const data = await res.json();
     const temp = Math.round(data.main.temp);
+    const weather = data.weather[0].main;
+
     document.getElementById("temp").innerText = ` ${temp}°C`;
+
+    let icon = "☀️";
+    if(weather.includes("Cloud")) icon="☁️";
+    if(weather.includes("Rain")) icon="🌧️";
+    if(weather.includes("Thunder")) icon="⛈️";
+    if(weather.includes("Snow")) icon="❄️";
+
+    document.getElementById("icon").innerText = icon;
+
   }catch(e){
-    document.getElementById("temp").innerText = " --°C";
+    document.getElementById("temp").innerText=" --°C";
   }
 }
 
