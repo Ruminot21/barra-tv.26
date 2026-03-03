@@ -1,235 +1,144 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Walkie-Talkie PRO</title>
-  <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@800&display=swap');
-    
-    body{margin:0;height:100vh;background:#000;color:#0f0;font-family:Arial,Helvetica,sans-serif;display:flex;align-items:center;justify-content:center;
-      background: radial-gradient(circle at center, #003300, #000);}
-    
-    .walkie{width:340px;background:#111;border:10px solid #333;border-radius:30px;padding:20px;box-shadow:0 0 50px rgba(0,255,0,0.4);
-      position:relative;overflow:hidden;}
-    
-    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
-    .led{width:18px;height:18px;background:#300;border-radius:50%;box-shadow:0 0 15px #f00;}
-    .led.on{background:#f00;animation:blink 1s infinite;box-shadow:0 0 30px #f00;}
-    @keyframes blink{0%,100%{opacity:0.7}50%{opacity:1}}
-    
-    h1{font-family:'Orbitron';font-size:28px;margin:0;text-shadow:0 0 15px #0f0;}
-    
-    .display{background:#000;border:4px solid #0f0;padding:15px;border-radius:12px;text-align:center;
-      font-family:'Orbitron';font-size:36px;letter-spacing:5px;margin-bottom:20px;text-shadow:0 0 20px #0f0;}
-    
-    select{background:#000;color:#0f0;border:3px solid #0f0;padding:12px;font-size:20px;border-radius:12px;width:100%;margin-bottom:20px;}
-    
-    .ptt{width:200px;height:200px;margin:30px auto;border-radius:50%;background:radial-gradient(#444,#000);
-      border:15px solid #555;box-shadow:0 0 60px rgba(0,255,0,0.7),inset 0 0 40px #000;
-      display:flex;align-items:center;justify-content:center;text-align:center;font-weight:bold;font-size:20px;color:#0f0;
-      transition:all 0.05s;touch-action:manipulation;}
-    
-    .ptt:active{background:radial-gradient(#f00,#900);transform:scale(0.94);box-shadow:0 0 80px #f00;}
-    
-    .status{text-align:center;font-size:15px;min-height:24px;margin:10px 0;}
-    
-    .speaker{height:70px;background:repeating-linear-gradient(90deg,#222 0px,#222 8px,#333 8px,#333 16px);border-radius:12px;}
-    
-    .signal{width:100%;height:6px;background:#222;border-radius:3px;overflow:hidden;margin-top:10px;}
-    .bar{height:100%;background:#0f0;width:0%;transition:width 0.3s;box-shadow:0 0 10px #0f0;}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CuraTV Overlay Responsive</title>
+
+<style>
+body{
+margin:0;
+overflow:hidden;
+font-family:Arial, Helvetica, sans-serif;
+background:transparent;
+}
+
+/* LOGO RESPONSIVE */
+.logo{
+position:absolute;
+top:2vh;
+right:2vw;
+height:clamp(60px, 10vh, 140px);
+}
+
+/* NOMBRE CANAL */
+.channel-name{
+position:absolute;
+bottom:10vh;
+left:2vw;
+font-size:clamp(20px, 3vw, 50px);
+font-weight:bold;
+background:linear-gradient(90deg,#00f0ff,#a100ff);
+-webkit-background-clip:text;
+color:transparent;
+}
+
+/* RELOJ + TEMP */
+.clock{
+position:absolute;
+bottom:10vh;
+right:2vw;
+font-size:clamp(16px, 2vw, 32px);
+color:#00f0ff;
+font-weight:bold;
+display:flex;
+align-items:center;
+gap:1vw;
+}
+
+/* ===== CINTA MUSICAL RESPONSIVE ===== */
+
+.ticker-container{
+position:absolute;
+bottom:0;
+width:100%;
+height:clamp(40px, 6vh, 80px);
+background:linear-gradient(90deg,#1a0033,#002b5c,#1a0033);
+display:flex;
+align-items:center;
+overflow:hidden;
+border-top:0.4vh solid #00f0ff;
+box-shadow:0 0 2vh #00f0ff;
+}
+
+.ticker{
+white-space:nowrap;
+color:white;
+font-size:clamp(14px, 1.8vw, 28px);
+font-weight:bold;
+letter-spacing:0.2vw;
+animation:scroll 18s linear infinite;
+position:relative;
+}
+
+@keyframes scroll{
+0% { transform: translateX(100%); }
+100% { transform: translateX(-100%); }
+}
+
+/* EFECTO BRILLO */
+.ticker::after{
+content:"";
+position:absolute;
+top:0;
+left:-100%;
+width:40%;
+height:100%;
+background:linear-gradient(120deg,transparent,rgba(255,255,255,0.6),transparent);
+animation:shine 4s infinite;
+}
+
+@keyframes shine{
+0%{ left:-100%; }
+100%{ left:150%; }
+}
+</style>
 </head>
+
 <body>
 
-<div class="walkie">
-  <div class="top">
-    <h1>WALKIE PRO</h1>
-    <div class="led" id="led"></div>
-  </div>
+<img src="https://i.postimg.cc/VNhjTb4d/3dgifmaker92299.gif" class="logo">
 
-  <div class="display" id="display">CH 01</div>
+<div class="channel-name">CuraTV</div>
 
-  <select id="channel">
-    <option value="1">CANAL 01 - GENERAL</option>
-    <option value="2">CANAL 02 - SEGURIDAD</option>
-    <option value="3">CANAL 03 - EVENTOS</option>
-    <option value="4">CANAL 04 - AMIGOS</option>
-    <option value="5">CANAL 05 - FIESTA</option>
-    <option value="6">CANAL 06</option>
-    <option value="7">CANAL 07</option>
-    <option value="8">CANAL 08</option>
-    <option value="9">CANAL 09</option>
-    <option value="10">CANAL 10</option>
-  </select>
-
-  <div class="ptt" id="ptt" unselectable="on">
-    MANTÉN<br>PARA HABLAR
-  </div>
-
-  <div class="status" id="status">Conectado • Listo</div>
-  <div class="signal"><div class="bar" id="signalBar"></div></div>
-  <div class="speaker"></div>
+<div class="clock">
+  <span id="time"></span>
+  <span id="temp"> --°C</span>
 </div>
 
-<audio id="beepStart" src="https://assets.mixkit.co/sfx/preview/mixkit-walkie-talkie-push-to-talk-1363.mp3" preload="auto"></audio>
-<audio id="beepEnd" src="https://assets.mixkit.co/sfx/preview/mixkit-walkie-talkie-roger-beep-1364.mp3" preload="auto"></audio>
+<div class="ticker-container">
+  <div class="ticker">
+    🎵 AHORA EN CURATV • LOS MEJORES HITS 24/7 • POP • URBANO • ELECTRÓNICA • CLÁSICOS • ESTRENOS • DJ SETS • TOP LATINO •
+  </div>
+</div>
 
 <script>
-  // Configuración ultra óptima
-  const pusher = new Pusher('fc0eb734d53f2df68607', {
-    cluster: 'us2',
-    forceTLS: true,
-    activityTimeout: 30000,
-    pongTimeout: 5000
-  });
+/* RELOJ */
+function updateClock(){
+  const now = new Date();
+  document.getElementById("time").innerText = now.toLocaleTimeString();
+}
+setInterval(updateClock,1000);
+updateClock();
 
-  let channel = null;
-  let recorder = null;
-  let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  let currentChannel = "1";
-  let isTalking = false;
-  let gainNode = audioContext.createGain();
+/* TEMPERATURA */
+const apiKey = "08956bbc1467eae311c7eea17b034270";
+const city = "Curacavi,CL";
 
-  const display = document.getElementById('display');
-  const status = document.getElementById('status');
-  const led = document.getElementById('led');
-  const ptt = document.getElementById('ptt');
-  const channelSelect = document.getElementById('channel');
-  const signalBar = document.getElementById('signalBar');
-
-  const beepStart = document.getElementById('beepStart');
-  const beepEnd = document.getElementById('beepEnd');
-
-  // Cambiar canal con fluidez
-  channelSelect.addEventListener('change', () => {
-    currentChannel = channelSelect.value;
-    display.textContent = `CH ${currentChannel.padStart(2, "0")}`;
-    subscribe(currentChannel);
-  });
-
-  function subscribe(ch) {
-    if (channel) {
-      channel.unbind_all();
-      pusher.unsubscribe(`walkie-${ch}`);
-    }
-    
-    channel = pusher.subscribe(`walkie-${ch}`);
-    
-    channel.bind('pusher:subscription_succeeded', () => {
-      status.textContent = `Canal \( {ch} • \){channel.members.count} en línea`;
-      signalBar.style.width = '100%';
-    });
-
-    // Recepción ultra fluida con AudioContext
-    channel.bind('audio', data => {
-      if (isTalking) return;
-      
-      const binary = atob(data.chunk);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      
-      audioContext.decodeAudioData(bytes.buffer, buffer => {
-        const source = audioContext.createBufferSource();
-        source.buffer = buffer;
-        source.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        gainNode.gain.value = 2.5;
-        source.start(0);
-        
-        led.classList.add('on');
-        setTimeout(() => led.classList.remove('on'), 150);
-      });
-    });
-
-    channel.bind('talking', () => {
-      if (!isTalking) {
-        status.textContent = "¡Hablando en el canal!";
-        status.style.color = "#f66";
-        beepStart.play();
-        led.classList.add('on');
-      }
-    });
-
-    channel.bind('stopped', () => {
-      status.textContent = `Canal ${ch} libre`;
-      status.style.color = "#0f0";
-      beepEnd.play();
-      led.classList.remove('on');
-    });
+async function updateWeather(){
+  try{
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=es&appid=${apiKey}`);
+    const data = await res.json();
+    const temp = Math.round(data.main.temp);
+    document.getElementById("temp").innerText = ` ${temp}°C`;
+  }catch(e){
+    document.getElementById("temp").innerText = " --°C";
   }
+}
 
-  // PTT ultra sensible
-  function startTransmit(e) {
-    e.preventDefault();
-    if (isTalking) return;
-
-    navigator.mediaDevices.getUserMedia({ 
-      audio: {
-        sampleRate: 48000,
-        channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      }
-    }).then(stream => {
-      ptt.innerHTML = "TRANSMITIENDO";
-      ptt.style.background = "radial-gradient(#f00, #900)";
-      status.textContent = "¡Hablando ahora!";
-      status.style.color = "#f00";
-      beepStart.currentTime = 0;
-      beepStart.play();
-
-      channel.trigger('client-talking', {});
-      
-      recorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
-
-      recorder.ondataavailable = e => {
-        if (e.data.size > 0) {
-          e.data.arrayBuffer().then(buf => {
-            const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
-            channel.trigger('client-audio', { chunk: base64 });
-          });
-        }
-      };
-
-      recorder.start(100); // 100ms = latencia imperceptible
-      isTalking = true;
-    });
-  }
-
-  function stopTransmit(e) {
-    if (e) e.preventDefault();
-    if (!isTalking || !recorder) return;
-
-    recorder.stop();
-    recorder.stream.getTracks().forEach(t => t.stop());
-    recorder = null;
-    isTalking = false;
-
-    ptt.innerHTML = "MANTÉN<br>PARA HABLAR";
-    ptt.style.background = "";
-    channel.trigger('client-stopped', {});
-    status.textContent = "Mensaje enviado";
-    setTimeout(() => status.textContent = `Canal ${currentChannel} libre`, 1000);
-  }
-
-  // Eventos táctiles + ratón + teclado
-  ptt.addEventListener('touchstart', startTransmit);
-  ptt.addEventListener('touchend', stopTransmit);
-  ptt.addEventListener('mousedown', startTransmit);
-  ptt.addEventListener('mouseup', stopTransmit);
-  ptt.addEventListener('mouseleave', stopTransmit);
-
-  // Tecla espacio (PC)
-  document.addEventListener('keydown', e => e.code === 'Space' && !e.repeat && startTransmit(e));
-  document.addEventListener('keyup', e => e.code === 'Space' && stopTransmit(e));
-
-  // Iniciar
-  subscribe("1");
+updateWeather();
+setInterval(updateWeather,600000);
 </script>
+
 </body>
 </html>
