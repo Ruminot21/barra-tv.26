@@ -13,11 +13,28 @@ font-family:Arial, Helvetica, sans-serif;
 background:transparent;
 }
 
-/* NOMBRE CANAL */
-.channel-name{
+/* RECUADRO PRINCIPAL (CuraTV + Hora + Temp) */
+.info-box{
 position:absolute;
 bottom:12vh;
 left:3vw;
+display:flex;
+align-items:center;
+gap:25px;
+
+padding:18px 35px;
+border-radius:25px;
+background:rgba(0,0,0,0.45);
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
+border:2px solid rgba(0,240,255,0.7);
+box-shadow:0 0 25px rgba(0,240,255,0.8);
+
+animation:glow 2s infinite alternate;
+}
+
+/* TEXTO CANAL */
+.channel-name{
 font-size:clamp(30px, 3vw, 55px);
 font-weight:bold;
 background:linear-gradient(90deg,#00f0ff,#a100ff);
@@ -25,34 +42,20 @@ background:linear-gradient(90deg,#00f0ff,#a100ff);
 color:transparent;
 }
 
-/* RELOJ + TEMP CON RECUADRO */
+/* RELOJ */
 .clock{
-position:absolute;
-bottom:12vh;
-right:3vw;
-font-size:clamp(22px, 2vw, 36px);
-color:white;
-font-weight:bold;
 display:flex;
 align-items:center;
 gap:15px;
-
-/* RECUADRO PRO */
-padding:15px 25px;
-border-radius:20px;
-background:rgba(0,0,0,0.45);
-backdrop-filter:blur(10px);
--webkit-backdrop-filter:blur(10px);
-border:2px solid rgba(0,240,255,0.6);
-box-shadow:0 0 20px rgba(0,240,255,0.6);
-
-/* EFECTO BRILLO */
-animation:glow 2s infinite alternate;
+font-size:clamp(22px, 2vw, 36px);
+color:white;
+font-weight:bold;
 }
 
+/* EFECTO BRILLO */
 @keyframes glow{
-from{ box-shadow:0 0 10px rgba(0,240,255,0.5); }
-to{ box-shadow:0 0 25px rgba(0,240,255,1); }
+from{ box-shadow:0 0 15px rgba(0,240,255,0.5); }
+to{ box-shadow:0 0 35px rgba(0,240,255,1); }
 }
 
 /* ICONO CLIMA */
@@ -65,7 +68,7 @@ font-size:28px;
 position:absolute;
 bottom:0;
 width:100%;
-height:90px;
+height:70px;
 background:linear-gradient(90deg,#1a0033,#002b5c,#1a0033);
 display:flex;
 align-items:center;
@@ -77,7 +80,7 @@ box-shadow:0 0 20px #00f0ff;
 .ticker{
 white-space:nowrap;
 color:white;
-font-size:44px;
+font-size:24px;
 font-weight:bold;
 letter-spacing:2px;
 animation:scroll 25s linear infinite;
@@ -109,12 +112,14 @@ animation:shine 5s infinite;
 
 <body>
 
-<div class="channel-name">CuraTV</div>
+<div class="info-box">
+  <div class="channel-name">CuraTV</div>
 
-<div class="clock">
-  <span id="time"></span>
-  <span class="weather-icon" id="icon">☀️</span>
-  <span id="temp"> --°C</span>
+  <div class="clock">
+    <span id="time"></span>
+    <span class="weather-icon" id="icon">☀️</span>
+    <span id="temp"> --°C</span>
+  </div>
 </div>
 
 <div class="ticker-container">
@@ -124,7 +129,6 @@ animation:shine 5s infinite;
 </div>
 
 <script>
-/* RELOJ 24H */
 function updateClock(){
   const now = new Date();
   document.getElementById("time").innerText =
@@ -133,7 +137,6 @@ function updateClock(){
 setInterval(updateClock,1000);
 updateClock();
 
-/* CLIMA */
 const apiKey = "08956bbc1467eae311c7eea17b034270";
 const city = "Curacavi,CL";
 
